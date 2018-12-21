@@ -25,4 +25,20 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+    //引入recyclerview库
+    implementation 'com.android.support:recyclerview-v7:28.0.0'
+    //TabLayout依赖包
+    implementation 'com.android.support:design:28+'
+}
+
+//使引入的版本库统一
+configurations.all {
+    resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+        def requested = details.requested
+        if (requested.group == 'com.android.support') {
+            if (!requested.name.startsWith("multidex")) {
+                details.useVersion '28.0.0'
+            }
+        }
+    }
 }
