@@ -29,6 +29,8 @@ dependencies {
     implementation 'com.android.support:recyclerview-v7:28.0.0'
     //TabLayout依赖包
     implementation 'com.android.support:design:28+'
+    //Picasso图片加载库
+    implementation 'com.squareup.picasso:picasso:2.5.2'
 }
 
 //使引入的版本库统一

@@ -2,10 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.wallpaper">
 
-    <!-- 联网 -->
-    <uses-permission android:name="android.permission.INTERNET" />
-    <!-- 读取外置存储卡 -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET" />  <!-- 联网权限 -->
+    <uses-permission android:name="android.permission.SET_WALLPAPER" />  <!-- 读取外置存储卡 -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />  <!-- sdcard读权限 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- sdcard写权限 -->
 
     <application
         android:allowBackup="true"
@@ -20,6 +20,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".activity.PreviewActivity"></activity>
     </application>
 
 </manifest>
