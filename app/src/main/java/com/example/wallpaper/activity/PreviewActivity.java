@@ -155,6 +155,7 @@ public class PreviewActivity extends BaseActivity implements View.OnClickListene
                         });
                     }
                 }).start();//开启线程
+
                 break;
             default:
                 break;

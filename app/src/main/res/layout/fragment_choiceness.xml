@@ -11,9 +11,8 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="2dp"
         android:layout_marginRight="2dp"
-        android:horizontalSpacing="1dp"
         android:numColumns="3"
         android:scrollbars="none"
-        android:verticalSpacing="3dp" />
+        android:verticalSpacing="2dp" />
 
 </LinearLayout>
