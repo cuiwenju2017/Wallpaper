@@ -34,6 +34,7 @@
         android:textColor="@color/colorWhite" />
 
     <ImageView
+        android:id="@+id/iv_down"
         android:layout_width="50dp"
         android:layout_height="40dp"
         android:layout_alignParentRight="true"

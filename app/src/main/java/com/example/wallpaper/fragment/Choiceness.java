@@ -1,6 +1,7 @@
 package com.example.wallpaper.fragment;
 
 import android.annotation.SuppressLint;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -47,6 +48,7 @@ public class Choiceness extends Fragment implements AdapterView.OnItemClickListe
 
     private GridView gl;
     private List<ChoicenessData> datas = new ArrayList<ChoicenessData>();
+    private static ProgressDialog mSaveDialog = null;
 
     private String data;
     private final static int TIME_OUT = 1000;//超时时间
@@ -55,6 +57,7 @@ public class Choiceness extends Fragment implements AdapterView.OnItemClickListe
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
                 case RESULT_OK:
+                    mSaveDialog.dismiss();
                     String str = msg.obj.toString();
                     try {
                         //解析服务器端返回的数据
@@ -93,7 +96,7 @@ public class Choiceness extends Fragment implements AdapterView.OnItemClickListe
     }
 
     private void initData() {
-
+        mSaveDialog = ProgressDialog.show(getActivity(), "", "加载中，请稍等...", true);
         new Thread(new Runnable() {
 
             @Override
@@ -170,7 +173,6 @@ public class Choiceness extends Fragment implements AdapterView.OnItemClickListe
                 news_item_view = view;
                 holder = (ViewHolder) news_item_view.getTag();
             }
-
             //使用Picasso图片加载库加载图片
             if (TextUtils.isEmpty(datas.get(position).getThumb().toString())) {
                 Picasso.with(getContext()).cancelRequest(holder.iv);
@@ -182,8 +184,6 @@ public class Choiceness extends Fragment implements AdapterView.OnItemClickListe
                         .placeholder(R.color.colorLightWhite)//图片加载中显示
                         .into(holder.iv);
             }
-
-
             return news_item_view;
         }
     }

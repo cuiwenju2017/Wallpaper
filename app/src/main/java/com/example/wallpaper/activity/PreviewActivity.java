@@ -1,18 +1,12 @@
 package com.example.wallpaper.activity;
 
+import android.app.ProgressDialog;
 import android.app.WallpaperManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
-import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -21,12 +15,11 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.wallpaper.R;
+import com.example.wallpaper.utils.HttpURLConnectionUtil;
+import com.example.wallpaper.utils.ImgDonwload;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -36,8 +29,9 @@ import java.net.URLConnection;
  */
 public class PreviewActivity extends BaseActivity implements View.OnClickListener {
 
-    private ImageView iv, iv_back;
+    private ImageView iv, iv_back, iv_down;
     private Button btn_set;
+    private static ProgressDialog mSaveDialog = null;
 
     @Override
     protected int getLayoutID() {
@@ -45,17 +39,6 @@ public class PreviewActivity extends BaseActivity implements View.OnClickListene
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         //去掉Activity上面的状态栏
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        //去掉虚拟按键全屏显示
-        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-        //       设置屏幕始终在前面，不然点击鼠标，重新出现虚拟按键
-        getWindow().getDecorView().setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav
-                        // bar
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
-                        | View.SYSTEM_UI_FLAG_IMMERSIVE);
         return R.layout.activity_preview;
     }
 
@@ -70,14 +53,17 @@ public class PreviewActivity extends BaseActivity implements View.OnClickListene
         iv = findViewById(R.id.iv);
         iv_back = findViewById(R.id.iv_back);
         btn_set = findViewById(R.id.btn_set);
+        iv_down = findViewById(R.id.iv_down);
         //获取监听
         iv.setOnClickListener(this);
         iv_back.setOnClickListener(this);
         btn_set.setOnClickListener(this);
+        iv_down.setOnClickListener(this);
     }
 
     @Override
     protected void initData() {
+        mSaveDialog = ProgressDialog.show(this, "", "加载中，请稍等...", true);
         Bundle bundle = getIntent().getExtras();
         final String message = bundle.getString("a");
         //创建一个新线程，用于从网络上获取图片
@@ -96,6 +82,7 @@ public class PreviewActivity extends BaseActivity implements View.OnClickListene
                     @Override
                     public void run() {
                         iv.setImageBitmap(bitmap);//在ImageView中显示从网络上获取到的图片
+                        mSaveDialog.dismiss();
                     }
                 });
             }
@@ -121,16 +108,15 @@ public class PreviewActivity extends BaseActivity implements View.OnClickListene
 
     @Override
     public void onClick(View v) {
+        Bundle bundle = getIntent().getExtras();
+        final String message = bundle.getString("a");
         switch (v.getId()) {
             case R.id.iv_back://返回
                 finish();
                 break;
             case R.id.btn_set://设为壁纸
-
-                Bundle bundle = getIntent().getExtras();
-                final String message = bundle.getString("a");
                 //创建一个新线程，用于从网络上获取图片
-                new Thread(new Runnable() {
+              /*  new Thread(new Runnable() {
                     @Override
                     public void run() {
                         //从网络上获取图片
@@ -144,21 +130,38 @@ public class PreviewActivity extends BaseActivity implements View.OnClickListene
                         iv.post(new Runnable() {
                             @Override
                             public void run() {
-                                try {
+                               *//* try {
                                     WallpaperManager wpm = (WallpaperManager) act.getSystemService(Context.WALLPAPER_SERVICE);
                                     wpm.setBitmap(bitmap);
                                     Toast.makeText(act, "壁纸设置成功，返回桌面查看", Toast.LENGTH_SHORT).show();
                                 } catch (IOException e) {
-                                    Log.e(TAG, "设置壁纸失败: " + e);
-                                }
+                                    Toast.makeText(act, "设置壁纸失败", Toast.LENGTH_SHORT).show();
+                                    e.printStackTrace();
+                                }*//*
+
+                              *//*  Intent chooseIntnet = new Intent(Intent.ACTION_SET_WALLPAPER);
+                                Intent chooser = Intent.createChooser(chooseIntnet, getText(R.string.app_name));
+                                startActivity(chooser);*//*
+
                             }
                         });
                     }
                 }).start();//开启线程
+*/
+                //HttpURLConnectionUtil.setWallpaper(PreviewActivity.this,message);
 
+                ImgDonwload.donwloadImg(PreviewActivity.this, message);
+                Intent chooseIntnet = new Intent(Intent.ACTION_SET_WALLPAPER);
+                Intent chooser = Intent.createChooser(chooseIntnet, getText(R.string.app_name));
+                startActivity(chooser);
+                break;
+            case R.id.iv_down://下载
+                ImgDonwload.donwloadImg(PreviewActivity.this, message);
                 break;
             default:
                 break;
         }
     }
+
+
 }
