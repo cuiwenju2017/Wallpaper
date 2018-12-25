@@ -6,21 +6,30 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore;
+import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.example.wallpaper.activity.BaseActivity;
 
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.UUID;
+
+import static android.content.Intent.getIntent;
 
 /**
  * 图片下载类
@@ -37,10 +46,12 @@ public class ImgDonwload {
 
     private static ProgressDialog mSaveDialog = null;
 
-    public static void donwloadImg(Context contexts, String filePaths) {
+    public static void donwloadImg(Context contexts, String filePaths, String pictureName) {
         context = contexts;
         filePath = filePaths;
+        mFileName = pictureName;
         mSaveDialog = ProgressDialog.show(context, "保存图片", "图片正在保存中，请稍等...", true);
+
         new Thread(saveFileRunnable).start();
     }
 
@@ -75,7 +86,6 @@ public class ImgDonwload {
             Toast.makeText(context, mSaveMessage, Toast.LENGTH_SHORT).show();
         }
     };
-
 
     /**
      * Get image from newwork
@@ -115,7 +125,6 @@ public class ImgDonwload {
         return outStream.toByteArray();
     }
 
-
     /**
      * 保存文件
      *
@@ -128,7 +137,7 @@ public class ImgDonwload {
         if (!dirFile.exists()) {
             dirFile.mkdir();
         }
-        fileName = UUID.randomUUID().toString() + ".jpg";
+        fileName = fileName + ".jpg";
         File jia = new File(Environment.getExternalStorageDirectory().getPath() + "/DCIM/手机壁纸");
         if (!jia.exists()) {   //判断文件夹是否存在，不存在则创建
             jia.mkdirs();
@@ -145,4 +154,5 @@ public class ImgDonwload {
         intent.setData(uri);
         context.sendBroadcast(intent);
     }
+
 }

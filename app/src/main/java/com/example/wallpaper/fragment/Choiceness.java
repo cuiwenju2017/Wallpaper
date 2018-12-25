@@ -7,8 +7,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,7 +16,6 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.wallpaper.R;
@@ -24,6 +23,7 @@ import com.example.wallpaper.activity.PreviewActivity;
 import com.example.wallpaper.bean.ChoicenessData;
 import com.example.wallpaper.utils.HttpUtils;
 import com.example.wallpaper.utils.StreamUtils;
+import com.example.wallpaper.view.SwipeRefreshView;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -37,6 +37,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
@@ -48,7 +50,7 @@ public class Choiceness extends Fragment implements AdapterView.OnItemClickListe
 
     private GridView gl;
     private List<ChoicenessData> datas = new ArrayList<ChoicenessData>();
-    private static ProgressDialog mSaveDialog = null;
+    private SwipeRefreshView mSwipeRefreshView;
 
     private String data;
     private final static int TIME_OUT = 1000;//超时时间
@@ -57,7 +59,6 @@ public class Choiceness extends Fragment implements AdapterView.OnItemClickListe
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
                 case RESULT_OK:
-                    mSaveDialog.dismiss();
                     String str = msg.obj.toString();
                     try {
                         //解析服务器端返回的数据
@@ -67,8 +68,10 @@ public class Choiceness extends Fragment implements AdapterView.OnItemClickListe
                         for (int i = 0; i < arr.length(); i++) {
                             JSONObject temp = (JSONObject) arr.get(i);
                             ChoicenessData data = new ChoicenessData();
+                            data.setId(temp.getString("id"));
                             data.setThumb(temp.getString("thumb"));
                             data.setImg(temp.getString("img"));
+                            data.setPreview(temp.getString("preview"));
                             datas.add(data);
                         }
                         gl.setAdapter(new MyAdapter());
@@ -89,21 +92,36 @@ public class Choiceness extends Fragment implements AdapterView.OnItemClickListe
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_choiceness, container, false);
-        initData();
         gl = view.findViewById(R.id.gl);
+        mSwipeRefreshView = view.findViewById(R.id.srl);
         gl.setOnItemClickListener(this);
+        initData();
+        // 设置颜色属性的时候一定要注意是引用了资源文件还是直接设置16进制的颜色，因为都是int值容易搞混
+        // 设置下拉进度的背景颜色，默认就是白色的
+        mSwipeRefreshView.setProgressBackgroundColorSchemeResource(android.R.color.white);
+        // 设置下拉进度的主题颜色
+        mSwipeRefreshView.setColorSchemeResources(R.color.colorRed, R.color.colorPrimaryDark, R.color.colorRed);
+        // 下拉时触发SwipeRefreshLayout的下拉动画，动画完毕之后就会回调这个方法
+        mSwipeRefreshView.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                datas.clear();
+                initData();
+                // 加载完数据设置为不刷新状态，将下拉进度收起来
+                mSwipeRefreshView.setRefreshing(false);
+            }
+        });
         return view;
     }
 
     private void initData() {
-        mSaveDialog = ProgressDialog.show(getActivity(), "", "加载中，请稍等...", true);
         new Thread(new Runnable() {
 
             @Override
             public void run() {
                 try {
                     @SuppressWarnings("deprecation")
-                    String PATH = HttpUtils.host + "?limit=30&skip=180&adult=false&first=0&order=hot";
+                    String PATH = HttpUtils.host + "/vertical/vertical?limit=30&skip=180&adult=false&first=0&order=hot";
                     URL url = new URL(PATH);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     //配置参数
@@ -137,7 +155,9 @@ public class Choiceness extends Fragment implements AdapterView.OnItemClickListe
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Bundle bundle = new Bundle();
-        bundle.putString("a", datas.get(position).getImg());
+        bundle.putString("id", datas.get(position).getId());
+        bundle.putString("img", datas.get(position).getImg());
+        bundle.putString("preview", datas.get(position).getPreview());
         Intent intent = new Intent();
         intent.putExtras(bundle);
         intent.setClass(getContext(), PreviewActivity.class);
