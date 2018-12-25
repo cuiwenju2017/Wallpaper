@@ -133,6 +133,8 @@ public class PreviewActivity extends BaseActivity implements View.OnClickListene
         final String id = bundle.getString("id");
         final String img = bundle.getString("img");
         final String preview = bundle.getString("preview");
+        final int permission = ActivityCompat.checkSelfPermission(this,
+                "android.permission.WRITE_EXTERNAL_STORAGE");
         switch (v.getId()) {
             case R.id.iv_back://返回
                 //Toast.makeText(act, preview2, Toast.LENGTH_SHORT).show();
@@ -163,9 +165,9 @@ public class PreviewActivity extends BaseActivity implements View.OnClickListene
                                     e.printStackTrace();
                                 }*//*
 
-             *//*  Intent chooseIntnet = new Intent(Intent.ACTION_SET_WALLPAPER);
+                                 Intent chooseIntnet = new Intent(Intent.ACTION_SET_WALLPAPER);
                                 Intent chooser = Intent.createChooser(chooseIntnet, getText(R.string.app_name));
-                                startActivity(chooser);*//*
+                                startActivity(chooser);
 
                             }
                         });
@@ -174,43 +176,28 @@ public class PreviewActivity extends BaseActivity implements View.OnClickListene
 */
                 //HttpURLConnectionUtil.setWallpaper(PreviewActivity.this,message);
 
-                try {
-                    //检测是否有写的权限
-                    int permission = ActivityCompat.checkSelfPermission(this,
-                            "android.permission.WRITE_EXTERNAL_STORAGE");
-                    if (permission != PackageManager.PERMISSION_GRANTED) {
-                        // 没有写的权限，去申请写的权限，会弹出对话框
-                        ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE);
-                    } else {
-                        ImgDonwload.donwloadImg(PreviewActivity.this, preview, id);
-                        Intent chooseIntnet = new Intent(Intent.ACTION_SET_WALLPAPER);
-                        Intent chooser = Intent.createChooser(chooseIntnet, getText(R.string.app_name));
-                        startActivity(chooser);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                //检测是否有写的权限
+                if (permission != PackageManager.PERMISSION_GRANTED) {
+                    // 没有写的权限，去申请写的权限，会弹出对话框
+                    ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE);
+                } else {
+                    ImgDonwload.donwloadImg(PreviewActivity.this, preview, id);
+                    Intent chooseIntnet = new Intent(Intent.ACTION_SET_WALLPAPER);
+                    Intent chooser = Intent.createChooser(chooseIntnet, getText(R.string.app_name));
+                    startActivity(chooser);
                 }
-
                 break;
             case R.id.iv_down://下载
-                try {
-                    //检测是否有写的权限
-                    int permission = ActivityCompat.checkSelfPermission(this,
-                            "android.permission.WRITE_EXTERNAL_STORAGE");
-                    if (permission != PackageManager.PERMISSION_GRANTED) {
-                        // 没有写的权限，去申请写的权限，会弹出对话框
-                        ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE);
-                    } else {
-                        ImgDonwload.donwloadImg(PreviewActivity.this, preview, id);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+                //检测是否有写的权限
+                if (permission != PackageManager.PERMISSION_GRANTED) {
+                    // 没有写的权限，去申请写的权限，会弹出对话框
+                    ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE);
+                } else {
+                    ImgDonwload.donwloadImg(PreviewActivity.this, preview, id);
                 }
                 break;
             default:
                 break;
         }
     }
-
-
 }

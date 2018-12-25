@@ -8,14 +8,14 @@
     <com.example.wallpaper.view.SwipeRefreshView
         android:id="@+id/srl"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp">
 
         <GridView
             android:id="@+id/gl"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="2dp"
-            android:layout_marginRight="2dp"
             android:horizontalSpacing="2dp"
             android:numColumns="3"
             android:scrollbars="none"

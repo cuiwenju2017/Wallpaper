@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -179,7 +180,7 @@ public class Classify extends Fragment implements AdapterView.OnItemClickListene
             if (view == null) {
                 news_item_view = View.inflate(getContext(), R.layout.item_gl_classify, null);
                 holder = new ViewHolder();
-                holder.rl = news_item_view.findViewById(R.id.rl);
+                holder.iv = news_item_view.findViewById(R.id.iv);
                 holder.tv = news_item_view.findViewById(R.id.tv);
                 news_item_view.setTag(holder);
             } else {
@@ -188,14 +189,14 @@ public class Classify extends Fragment implements AdapterView.OnItemClickListene
             }
             //使用Picasso图片加载库加载图片
             if (TextUtils.isEmpty(datas.get(position).getCover().toString())) {
-                Picasso.with(getContext()).cancelRequest((Target) holder.rl);
-                holder.rl.setBackground(getResources()
+                Picasso.with(getContext()).cancelRequest(holder.iv);
+                holder.iv.setImageDrawable(getResources()
                         .getDrawable(R.color.colorLightWhite));//当图片为空时显示
             } else {//图片加载
                 Picasso.with(getContext())
                         .load((datas.get(position).getCover().toString()))
                         .placeholder(R.color.colorLightWhite)//图片加载中显示
-                        .into((Target) holder.rl);
+                        .into(holder.iv);
             }
             holder.tv.setText(datas.get(position).getName());//中文名
             return news_item_view;
@@ -203,7 +204,7 @@ public class Classify extends Fragment implements AdapterView.OnItemClickListene
     }
 
     static class ViewHolder {
-        public RelativeLayout rl;
+        public ImageView iv;
         public TextView tv;
     }
 

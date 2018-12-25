@@ -82,7 +82,7 @@ public class ImgDonwload {
         @Override
         public void handleMessage(Message msg) {
             mSaveDialog.dismiss();
-            Log.d(TAG, mSaveMessage);
+            //Log.d(TAG, mSaveMessage);
             Toast.makeText(context, mSaveMessage, Toast.LENGTH_SHORT).show();
         }
     };

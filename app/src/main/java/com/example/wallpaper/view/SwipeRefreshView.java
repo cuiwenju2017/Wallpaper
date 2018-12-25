@@ -103,7 +103,7 @@ public class SwipeRefreshView extends SwipeRefreshLayout {
         // 1. 是上拉状态
         boolean condition1 = (mDownY - mUpY) >= mScaledTouchSlop;
         if (condition1) {
-            Log.d(TAG, "------->  是上拉状态");
+            //Log.d(TAG, "------->  是上拉状态");
         }
 
         // 2. 当前页面可见的item是最后一个条目,一般最后一个条目位置需要大于第一页的数据长度
@@ -125,12 +125,12 @@ public class SwipeRefreshView extends SwipeRefreshLayout {
         }
 
         if (condition2) {
-            Log.d(TAG, "------->  是最后一个条目");
+            //Log.d(TAG, "------->  是最后一个条目");
         }
         // 3. 正在加载状态
         boolean condition3 = !isLoading;
         if (condition3) {
-            Log.d(TAG, "------->  不是正在加载状态");
+            //Log.d(TAG, "------->  不是正在加载状态");
         }
         return condition1 && condition2 && condition3;
     }
