@@ -5,20 +5,15 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.example.wallpaper.view.SwipeRefreshView
-        android:id="@+id/srl"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swiperefreshlayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginLeft="2dp"
-        android:layout_marginRight="2dp">
+        android:layout_height="wrap_content">
 
-        <GridView
-            android:id="@+id/gl"
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:horizontalSpacing="2dp"
-            android:numColumns="3"
-            android:scrollbars="none"
-            android:verticalSpacing="2dp" />
-    </com.example.wallpaper.view.SwipeRefreshView>
+            android:layout_height="match_parent" />
+
+    </android.support.v4.widget.SwipeRefreshLayout>
 </LinearLayout>

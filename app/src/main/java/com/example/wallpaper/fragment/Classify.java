@@ -16,7 +16,6 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,7 +25,6 @@ import com.example.wallpaper.utils.HttpUtils;
 import com.example.wallpaper.utils.StreamUtils;
 import com.example.wallpaper.view.SwipeRefreshView;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import org.json.JSONArray;
 import org.json.JSONException;

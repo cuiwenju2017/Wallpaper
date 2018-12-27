@@ -9,6 +9,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.AbsListView;
+import android.widget.GridView;
 import android.widget.ListView;
 
 import com.example.wallpaper.R;
@@ -23,6 +24,7 @@ public class SwipeRefreshView extends SwipeRefreshLayout {
     private final int mScaledTouchSlop;
     private final View mFooterView;
     private ListView mListView;
+    private GridView mGridView;
     private OnLoadMoreListener mListener;
 
     /**
@@ -65,7 +67,6 @@ public class SwipeRefreshView extends SwipeRefreshLayout {
             }
         }
     }
-
 
     /**
      * 在分发事件的时候处理子控件的触摸事件
@@ -195,7 +196,6 @@ public class SwipeRefreshView extends SwipeRefreshLayout {
             }
         });
     }
-
 
     /**
      * 设置RecyclerView的滑动监听

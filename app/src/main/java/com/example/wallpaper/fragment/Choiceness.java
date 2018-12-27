@@ -1,20 +1,22 @@
 package com.example.wallpaper.fragment;
 
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.BaseAdapter;
-import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -37,8 +39,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
@@ -46,17 +46,17 @@ import static android.app.Activity.RESULT_OK;
 /**
  * 精选
  */
-public class Choiceness extends Fragment implements AdapterView.OnItemClickListener {
+public class Choiceness extends Fragment {
 
-    private GridView gl;
-    private List<ChoicenessData> datas = new ArrayList<ChoicenessData>();
-    private SwipeRefreshView mSwipeRefreshView;
+    private List<ChoicenessData> datas = new ArrayList<>();
+    public RecyclerView recyclerview;
 
+    int skip = 0;
     private String data;
     private final static int TIME_OUT = 1000;//超时时间
     @SuppressLint("HandlerLeak")
     private Handler handler = new Handler() {
-        public void handleMessage(android.os.Message msg) {
+        public void handleMessage(Message msg) {
             switch (msg.what) {
                 case RESULT_OK:
                     String str = msg.obj.toString();
@@ -74,7 +74,10 @@ public class Choiceness extends Fragment implements AdapterView.OnItemClickListe
                             data.setPreview(temp.getString("preview"));
                             datas.add(data);
                         }
-                        gl.setAdapter(new MyAdapter());
+                        //布局方式
+                        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
+                        recyclerview.setLayoutManager(layoutManager);
+                        recyclerview.setAdapter(new RecyclerViewAdapter(datas, getActivity()));
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -92,36 +95,18 @@ public class Choiceness extends Fragment implements AdapterView.OnItemClickListe
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_choiceness, container, false);
-        gl = view.findViewById(R.id.gl);
-        mSwipeRefreshView = view.findViewById(R.id.srl);
-        gl.setOnItemClickListener(this);
+        recyclerview = view.findViewById(R.id.recycler_view);
         initData();
-        // 设置颜色属性的时候一定要注意是引用了资源文件还是直接设置16进制的颜色，因为都是int值容易搞混
-        // 设置下拉进度的背景颜色，默认就是白色的
-        mSwipeRefreshView.setProgressBackgroundColorSchemeResource(android.R.color.white);
-        // 设置下拉进度的主题颜色
-        mSwipeRefreshView.setColorSchemeResources(R.color.colorRed, R.color.colorPrimaryDark, R.color.colorRed);
-        // 下拉时触发SwipeRefreshLayout的下拉动画，动画完毕之后就会回调这个方法
-        mSwipeRefreshView.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                datas.clear();
-                initData();
-                // 加载完数据设置为不刷新状态，将下拉进度收起来
-                mSwipeRefreshView.setRefreshing(false);
-            }
-        });
         return view;
     }
 
     private void initData() {
         new Thread(new Runnable() {
-
             @Override
             public void run() {
                 try {
                     @SuppressWarnings("deprecation")
-                    String PATH = HttpUtils.host + "/vertical/vertical?limit=30&skip=180&adult=false&first=0&order=hot";
+                    String PATH = HttpUtils.host + "/vertical/vertical?limit=30&skip=" + skip + "&adult=false&first=0&order=hot";
                     URL url = new URL(PATH);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     //配置参数
@@ -152,64 +137,67 @@ public class Choiceness extends Fragment implements AdapterView.OnItemClickListe
         }).start();
     }
 
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Bundle bundle = new Bundle();
-        bundle.putString("id", datas.get(position).getId());
-        bundle.putString("img", datas.get(position).getImg());
-        bundle.putString("preview", datas.get(position).getPreview());
-        Intent intent = new Intent();
-        intent.putExtras(bundle);
-        intent.setClass(getContext(), PreviewActivity.class);
-        startActivity(intent);
-    }
+    public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
+        public List<ChoicenessData> list;
+        public Context con;
+        public LayoutInflater inflater;
 
-    class MyAdapter extends BaseAdapter {
-        @Override
-        public int getCount() {
-            return datas.size();
+        public RecyclerViewAdapter(List<ChoicenessData> list, Context con) {
+            this.con = con;
+            this.list = list;
+            inflater = LayoutInflater.from(con);
         }
 
         @Override
-        public Object getItem(int position) {
-            return datas.get(position);
+        public RecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = inflater.inflate(R.layout.item_rv, null);
+            final RecyclerViewAdapter.ViewHolder viewHolder = new RecyclerViewAdapter.ViewHolder(view);
+            viewHolder.view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {//带参传值
+                    int position = viewHolder.getAdapterPosition();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("id", list.get(position).getId());
+                    bundle.putString("img", list.get(position).getImg());
+                    bundle.putString("preview", list.get(position).getPreview());
+                    Intent intent = new Intent();
+                    intent.putExtras(bundle);
+                    intent.setClass(getContext(), PreviewActivity.class);
+                    startActivity(intent);
+                }
+            });
+            return viewHolder;
         }
 
         @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View view, ViewGroup viewGroup) {
-            View news_item_view = null;
-            ViewHolder holder = null;
-            if (view == null) {
-                news_item_view = View.inflate(getContext(), R.layout.item_gl, null);
-                holder = new ViewHolder();
-                holder.iv = news_item_view.findViewById(R.id.iv);
-                news_item_view.setTag(holder);
-            } else {
-                news_item_view = view;
-                holder = (ViewHolder) news_item_view.getTag();
-            }
+        public void onBindViewHolder(final RecyclerViewAdapter.ViewHolder holder, int position) {
             //使用Picasso图片加载库加载图片
-            if (TextUtils.isEmpty(datas.get(position).getThumb().toString())) {
+            if (TextUtils.isEmpty(list.get(position).getThumb().toString())) {
                 Picasso.with(getContext()).cancelRequest(holder.iv);
                 holder.iv.setImageDrawable(getResources()
                         .getDrawable(R.color.colorLightWhite));//当图片为空时显示
             } else {//图片加载
                 Picasso.with(getContext())
-                        .load((datas.get(position).getThumb().toString()))
+                        .load((list.get(position).getThumb().toString()))
                         .placeholder(R.color.colorLightWhite)//图片加载中显示
                         .into(holder.iv);
             }
-            return news_item_view;
+        }
+
+        @Override
+        public int getItemCount() {
+            return list.size();
+        }
+
+        class ViewHolder extends RecyclerView.ViewHolder {
+            public ImageView iv;
+            View view;
+
+            public ViewHolder(View itemView) {
+                super(itemView);
+                view = itemView;
+                iv = itemView.findViewById(R.id.iv);
+            }
         }
     }
-
-    static class ViewHolder {
-        public ImageView iv;
-    }
-
 }
