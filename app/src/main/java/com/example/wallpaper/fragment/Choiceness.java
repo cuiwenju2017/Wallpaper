@@ -49,50 +49,15 @@ import static android.app.Activity.RESULT_OK;
  */
 public class Choiceness extends Fragment {
 
-    private List<ChoicenessData> datas = new ArrayList<>();
+    private List<ChoicenessData> dataList = new ArrayList<>();
     public RecyclerView recyclerview;
     private SwipeRefreshLayout swipeRefreshLayout;
     private LoadMoreWrapper loadMoreWrapper;
-
+    private LoadMoreWrapperAdapter loadMoreWrapperAdapter;
     int skip = 0;
     private String data;
     private final static int TIME_OUT = 1000;//超时时间
-    @SuppressLint("HandlerLeak")
-    private Handler handler = new Handler() {
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case RESULT_OK:
-                    String str = msg.obj.toString();
-                    try {
-                        //解析服务器端返回的数据
-                        JSONObject obj = new JSONObject(str);
-                        JSONObject obj2 = new JSONObject(obj.getString("res"));
-                        JSONArray arr = new JSONArray(obj2.getString("vertical"));
-                        for (int i = 0; i < arr.length(); i++) {
-                            JSONObject temp = (JSONObject) arr.get(i);
-                            ChoicenessData data = new ChoicenessData();
-                            data.setId(temp.getString("id"));
-                            data.setThumb(temp.getString("thumb"));
-                            data.setImg(temp.getString("img"));
-                            data.setPreview(temp.getString("preview"));
-                            datas.add(data);
-                        }
-                        LoadMoreWrapperAdapter loadMoreWrapperAdapter = new LoadMoreWrapperAdapter(datas);
-                        loadMoreWrapper = new LoadMoreWrapper(loadMoreWrapperAdapter);
-                        recyclerview.setLayoutManager(new GridLayoutManager(getActivity(), 3));
-                        recyclerview.setAdapter(loadMoreWrapper);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    break;
-                case RESULT_CANCELED:
-                    Toast.makeText(getActivity(), "服务器繁忙……", Toast.LENGTH_SHORT).show();
-                    break;
-                default:
-                    break;
-            }
-        }
-    };
+    private Handler handler;
 
     @Nullable
     @Override
@@ -101,6 +66,10 @@ public class Choiceness extends Fragment {
         recyclerview = view.findViewById(R.id.recycler_view);
         swipeRefreshLayout = view.findViewById(R.id.swiperefreshlayout);
         initData();
+        loadMoreWrapperAdapter = new LoadMoreWrapperAdapter(dataList);
+        loadMoreWrapper = new LoadMoreWrapper(loadMoreWrapperAdapter);
+        recyclerview.setLayoutManager(new GridLayoutManager(getActivity(), 3));
+        recyclerview.setAdapter(loadMoreWrapper);
         // 设置刷新控件颜色
         swipeRefreshLayout.setColorSchemeColors(Color.parseColor("#d81e06"));
         // 设置下拉刷新
@@ -108,7 +77,7 @@ public class Choiceness extends Fragment {
             @Override
             public void onRefresh() {
                 // 刷新数据
-                datas.clear();
+                dataList.clear();
                 skip = 0;
                 initData();
                 // 延时1s关闭下拉刷新
@@ -127,7 +96,7 @@ public class Choiceness extends Fragment {
             @Override
             public void onLoadMore() {
                 loadMoreWrapper.setLoadState(loadMoreWrapper.LOADING);
-                if (datas.size() < 3000) {
+                if (dataList.size() < 3000) {
                     // 模拟获取网络数据，延时1s
                     new Timer().schedule(new TimerTask() {
                         @Override
@@ -153,6 +122,7 @@ public class Choiceness extends Fragment {
 
     private void initData() {
         new Thread(new Runnable() {
+            @SuppressLint("HandlerLeak")
             @Override
             public void run() {
                 try {
@@ -173,16 +143,28 @@ public class Choiceness extends Fragment {
                         InputStream inputStream = connection.getInputStream();
                         //将字节流输入流转换为字符串
                         data = StreamUtils.inputSteam2String(inputStream);
-                        handler.obtainMessage(RESULT_OK, data).sendToTarget();
-                    } else {
-                        handler.obtainMessage(RESULT_CANCELED, responseCode).sendToTarget();
+                        try {
+                            //解析服务器端返回的数据
+                            JSONObject obj = new JSONObject(data);
+                            JSONObject obj2 = new JSONObject(obj.getString("res"));
+                            JSONArray arr = new JSONArray(obj2.getString("vertical"));
+                            for (int i = 0; i < arr.length(); i++) {
+                                JSONObject temp = (JSONObject) arr.get(i);
+                                ChoicenessData map = new ChoicenessData();
+                                map.setId(temp.getString("id"));
+                                map.setThumb(temp.getString("thumb"));
+                                map.setImg(temp.getString("img"));
+                                map.setPreview(temp.getString("preview"));
+                                dataList.add(map);
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
-                    handler.obtainMessage(RESULT_CANCELED, e.getMessage()).sendToTarget();
                 } catch (IOException e) {
                     e.printStackTrace();
-                    handler.obtainMessage(RESULT_CANCELED, e.getMessage()).sendToTarget();
                 }
             }
         }).start();
