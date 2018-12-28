@@ -1,18 +1,16 @@
 package com.example.wallpaper.fragment;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,9 +21,10 @@ import android.widget.Toast;
 import com.example.wallpaper.R;
 import com.example.wallpaper.activity.PreviewActivity;
 import com.example.wallpaper.bean.ChoicenessData;
+import com.example.wallpaper.listener.EndlessRecyclerOnScrollListener;
 import com.example.wallpaper.utils.HttpUtils;
 import com.example.wallpaper.utils.StreamUtils;
-import com.example.wallpaper.view.SwipeRefreshView;
+import com.example.wallpaper.wrapper.LoadMoreWrapper;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -39,6 +38,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
@@ -50,6 +51,8 @@ public class Choiceness extends Fragment {
 
     private List<ChoicenessData> datas = new ArrayList<>();
     public RecyclerView recyclerview;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private LoadMoreWrapper loadMoreWrapper;
 
     int skip = 0;
     private String data;
@@ -74,10 +77,10 @@ public class Choiceness extends Fragment {
                             data.setPreview(temp.getString("preview"));
                             datas.add(data);
                         }
-                        //布局方式
-                        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
-                        recyclerview.setLayoutManager(layoutManager);
-                        recyclerview.setAdapter(new RecyclerViewAdapter(datas, getActivity()));
+                        LoadMoreWrapperAdapter loadMoreWrapperAdapter = new LoadMoreWrapperAdapter(datas);
+                        loadMoreWrapper = new LoadMoreWrapper(loadMoreWrapperAdapter);
+                        recyclerview.setLayoutManager(new GridLayoutManager(getActivity(), 3));
+                        recyclerview.setAdapter(loadMoreWrapper);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -96,7 +99,55 @@ public class Choiceness extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_choiceness, container, false);
         recyclerview = view.findViewById(R.id.recycler_view);
+        swipeRefreshLayout = view.findViewById(R.id.swiperefreshlayout);
         initData();
+        // 设置刷新控件颜色
+        swipeRefreshLayout.setColorSchemeColors(Color.parseColor("#d81e06"));
+        // 设置下拉刷新
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                // 刷新数据
+                datas.clear();
+                skip = 0;
+                initData();
+                // 延时1s关闭下拉刷新
+                swipeRefreshLayout.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (swipeRefreshLayout != null && swipeRefreshLayout.isRefreshing()) {
+                            swipeRefreshLayout.setRefreshing(false);
+                        }
+                    }
+                }, 1000);
+            }
+        });
+        // 设置加载更多监听
+        recyclerview.addOnScrollListener(new EndlessRecyclerOnScrollListener() {
+            @Override
+            public void onLoadMore() {
+                loadMoreWrapper.setLoadState(loadMoreWrapper.LOADING);
+                if (datas.size() < 3000) {
+                    // 模拟获取网络数据，延时1s
+                    new Timer().schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    skip = skip + 30;
+                                    initData();
+                                    loadMoreWrapper.setLoadState(loadMoreWrapper.LOADING_COMPLETE);
+                                }
+                            });
+                        }
+                    }, 1000);
+                } else {
+                    // 显示加载到底的提示
+                    loadMoreWrapper.setLoadState(loadMoreWrapper.LOADING_END);
+                }
+            }
+        });
         return view;
     }
 
@@ -137,29 +188,26 @@ public class Choiceness extends Fragment {
         }).start();
     }
 
-    public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
-        public List<ChoicenessData> list;
-        public Context con;
-        public LayoutInflater inflater;
+    public class LoadMoreWrapperAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-        public RecyclerViewAdapter(List<ChoicenessData> list, Context con) {
-            this.con = con;
-            this.list = list;
-            inflater = LayoutInflater.from(con);
+        private List<ChoicenessData> dataList;
+
+        public LoadMoreWrapperAdapter(List<ChoicenessData> dataList) {
+            this.dataList = dataList;
         }
 
         @Override
-        public RecyclerViewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = inflater.inflate(R.layout.item_rv, null);
-            final RecyclerViewAdapter.ViewHolder viewHolder = new RecyclerViewAdapter.ViewHolder(view);
+        public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_rv, parent, false);
+            final LoadMoreWrapperAdapter.RecyclerViewHolder viewHolder = new LoadMoreWrapperAdapter.RecyclerViewHolder(view);
             viewHolder.view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {//带参传值
                     int position = viewHolder.getAdapterPosition();
                     Bundle bundle = new Bundle();
-                    bundle.putString("id", list.get(position).getId());
-                    bundle.putString("img", list.get(position).getImg());
-                    bundle.putString("preview", list.get(position).getPreview());
+                    bundle.putString("id", dataList.get(position).getId());
+                    bundle.putString("img", dataList.get(position).getImg());
+                    bundle.putString("preview", dataList.get(position).getPreview());
                     Intent intent = new Intent();
                     intent.putExtras(bundle);
                     intent.setClass(getContext(), PreviewActivity.class);
@@ -170,30 +218,32 @@ public class Choiceness extends Fragment {
         }
 
         @Override
-        public void onBindViewHolder(final RecyclerViewAdapter.ViewHolder holder, int position) {
+        public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+            LoadMoreWrapperAdapter.RecyclerViewHolder recyclerViewHolder = (LoadMoreWrapperAdapter.RecyclerViewHolder) holder;
             //使用Picasso图片加载库加载图片
-            if (TextUtils.isEmpty(list.get(position).getThumb().toString())) {
-                Picasso.with(getContext()).cancelRequest(holder.iv);
-                holder.iv.setImageDrawable(getResources()
+            if (TextUtils.isEmpty(dataList.get(position).getThumb().toString())) {
+                Picasso.with(getContext()).cancelRequest(recyclerViewHolder.iv);
+                recyclerViewHolder.iv.setImageDrawable(getResources()
                         .getDrawable(R.color.colorLightWhite));//当图片为空时显示
             } else {//图片加载
                 Picasso.with(getContext())
-                        .load((list.get(position).getThumb().toString()))
+                        .load((dataList.get(position).getThumb().toString()))
                         .placeholder(R.color.colorLightWhite)//图片加载中显示
-                        .into(holder.iv);
+                        .into(recyclerViewHolder.iv);
             }
         }
 
         @Override
         public int getItemCount() {
-            return list.size();
+            return dataList.size();
         }
 
-        class ViewHolder extends RecyclerView.ViewHolder {
-            public ImageView iv;
+        private class RecyclerViewHolder extends RecyclerView.ViewHolder {
+
+            ImageView iv;
             View view;
 
-            public ViewHolder(View itemView) {
+            RecyclerViewHolder(View itemView) {
                 super(itemView);
                 view = itemView;
                 iv = itemView.findViewById(R.id.iv);
