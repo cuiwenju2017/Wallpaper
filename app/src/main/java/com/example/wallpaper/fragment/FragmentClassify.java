@@ -1,6 +1,7 @@
 package com.example.wallpaper.fragment;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -20,11 +21,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.wallpaper.R;
+import com.example.wallpaper.activity.ClassifyActivity;
+import com.example.wallpaper.activity.PreviewActivity;
 import com.example.wallpaper.bean.ClassifyData;
 import com.example.wallpaper.utils.HttpUtils;
 import com.example.wallpaper.utils.StreamUtils;
 import com.example.wallpaper.view.SwipeRefreshView;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Transformation;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,13 +42,15 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.net.ssl.ManagerFactoryParameters;
+
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 
 /**
  * 分类
  */
-public class Classify extends Fragment implements AdapterView.OnItemClickListener {
+public class FragmentClassify extends Fragment implements AdapterView.OnItemClickListener {
 
     private GridView gl;
     private List<ClassifyData> datas = new ArrayList<ClassifyData>();
@@ -151,7 +157,12 @@ public class Classify extends Fragment implements AdapterView.OnItemClickListene
 
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+        Bundle bundle = new Bundle();
+        bundle.putString("id", datas.get(position).getId());
+        Intent intent = new Intent();
+        intent.putExtras(bundle);
+        intent.setClass(getContext(), ClassifyActivity.class);
+        startActivity(intent);
     }
 
     class MyAdapter extends BaseAdapter {

@@ -3,11 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.wallpaper">
 
-    <uses-permission android:name="android.permission.INTERNET"/> <!-- 联网权限 -->
-    <uses-permission android:name="android.permission.SET_WALLPAPER"/> <!-- 设置壁纸权限 -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>  <!-- sdcard读权限 -->
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/> <!-- sdcard写权限 -->
+    <uses-permission android:name="android.permission.INTERNET" /> <!-- 联网权限 -->
+    <uses-permission android:name="android.permission.SET_WALLPAPER" /> <!-- 设置壁纸权限 -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- sdcard读权限 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
+    <!-- sdcard写权限 -->
     <application
         android:allowBackup="true"
         android:icon="@drawable/logo"
@@ -25,7 +26,10 @@
         </activity>
         <activity
             android:name=".activity.PreviewActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
+        <activity android:name=".activity.ClassifyActivity" />
+        <activity android:name=".activity.ComputerClassifyActivity" />
+        <activity android:name=".activity.ComputerPreviewActivity"></activity>
     </application>
 
 </manifest>

@@ -4,26 +4,28 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.example.wallpaper.fragment.FragmentChoiceness;
-import com.example.wallpaper.fragment.FragmentClassify;
+import com.example.wallpaper.fragment.FragmentComputerHottest;
+import com.example.wallpaper.fragment.FragmentComputerNewest;
+import com.example.wallpaper.fragment.FragmentHottest;
+import com.example.wallpaper.fragment.FragmentNewest;
 
 /**
- * 手机壁纸导航栏适配器
+ * 电脑壁纸导航栏适配器
  */
-public class MobilePhoneFragmentPagerAdapter extends FragmentPagerAdapter {
+public class ComputerClassifyFragmentPagerAdapter extends FragmentPagerAdapter {
 
-    private String[] mTitles = new String[]{"精选", "分类"};
+    private String[] mTitles = new String[]{"最新", "热门"};
 
-    public MobilePhoneFragmentPagerAdapter(FragmentManager fm) {
+    public ComputerClassifyFragmentPagerAdapter(FragmentManager fm) {
         super(fm);
     }
 
     @Override
     public Fragment getItem(int position) {
         if (position == 0) {
-            return new FragmentChoiceness();
+            return new FragmentComputerNewest();
         }
-        return new FragmentClassify();
+        return new FragmentComputerHottest();
     }
 
     @Override

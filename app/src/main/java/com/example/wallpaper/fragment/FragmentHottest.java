@@ -1,7 +1,9 @@
 package com.example.wallpaper.fragment;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -38,26 +40,61 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 
 /**
- * 精选
+ * 手机壁纸最热
  */
-public class Choiceness extends Fragment {
+public class FragmentHottest extends Fragment {
 
     private List<ChoicenessData> dataList = new ArrayList<>();
     public RecyclerView recyclerview;
     private SwipeRefreshLayout swipeRefreshLayout;
     private LoadMoreWrapper loadMoreWrapper;
     private LoadMoreWrapperAdapter loadMoreWrapperAdapter;
+    SharedPreferences sprfMain;
+
     int skip = 0;
     private String data;
     private final static int TIME_OUT = 1000;//超时时间
-    private Handler handler;
+    @SuppressLint("HandlerLeak")
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case RESULT_OK:
+                    try {
+                        //解析服务器端返回的数据
+                        JSONObject obj = new JSONObject(data);
+                        JSONObject obj2 = new JSONObject(obj.getString("res"));
+                        JSONArray arr = new JSONArray(obj2.getString("vertical"));
+                        for (int i = 0; i < arr.length(); i++) {
+                            JSONObject temp = (JSONObject) arr.get(i);
+                            ChoicenessData map = new ChoicenessData();
+                            map.setId(temp.getString("id"));
+                            map.setThumb(temp.getString("thumb"));
+                            map.setImg(temp.getString("img"));
+                            map.setPreview(temp.getString("preview"));
+                            dataList.add(map);
+                        }
+                        loadMoreWrapperAdapter = new LoadMoreWrapperAdapter(dataList);
+                        loadMoreWrapper = new LoadMoreWrapper(loadMoreWrapperAdapter);
+                        recyclerview.setLayoutManager(new GridLayoutManager(getActivity(), 3));
+                        recyclerview.setAdapter(loadMoreWrapper);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case RESULT_CANCELED:
+                    Toast.makeText(getActivity(), "服务器繁忙……", Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
     @Nullable
     @Override
@@ -66,10 +103,7 @@ public class Choiceness extends Fragment {
         recyclerview = view.findViewById(R.id.recycler_view);
         swipeRefreshLayout = view.findViewById(R.id.swiperefreshlayout);
         initData();
-        loadMoreWrapperAdapter = new LoadMoreWrapperAdapter(dataList);
-        loadMoreWrapper = new LoadMoreWrapper(loadMoreWrapperAdapter);
-        recyclerview.setLayoutManager(new GridLayoutManager(getActivity(), 3));
-        recyclerview.setAdapter(loadMoreWrapper);
+
         // 设置刷新控件颜色
         swipeRefreshLayout.setColorSchemeColors(Color.parseColor("#d81e06"));
         // 设置下拉刷新
@@ -78,7 +112,7 @@ public class Choiceness extends Fragment {
             public void onRefresh() {
                 // 刷新数据
                 dataList.clear();
-                skip = 0;
+                skip = skip + 30;
                 initData();
                 // 延时1s关闭下拉刷新
                 swipeRefreshLayout.postDelayed(new Runnable() {
@@ -95,39 +129,24 @@ public class Choiceness extends Fragment {
         recyclerview.addOnScrollListener(new EndlessRecyclerOnScrollListener() {
             @Override
             public void onLoadMore() {
-                loadMoreWrapper.setLoadState(loadMoreWrapper.LOADING);
-                if (dataList.size() < 3000) {
-                    // 模拟获取网络数据，延时1s
-                    new Timer().schedule(new TimerTask() {
-                        @Override
-                        public void run() {
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    skip = skip + 30;
-                                    initData();
-                                    loadMoreWrapper.setLoadState(loadMoreWrapper.LOADING_COMPLETE);
-                                }
-                            });
-                        }
-                    }, 1000);
-                } else {
-                    // 显示加载到底的提示
-                    loadMoreWrapper.setLoadState(loadMoreWrapper.LOADING_END);
-                }
+                // 显示加载到底的提示
+                loadMoreWrapper.setLoadState(loadMoreWrapper.LOADING_END);
             }
         });
         return view;
     }
 
     private void initData() {
+        //取出上个页面保存的值
+        sprfMain = getActivity().getSharedPreferences("counter", Context.MODE_PRIVATE);
+        final String id = sprfMain.getString("id", "");
         new Thread(new Runnable() {
             @SuppressLint("HandlerLeak")
             @Override
             public void run() {
                 try {
                     @SuppressWarnings("deprecation")
-                    String PATH = HttpUtils.host + "/vertical/vertical?limit=30&skip=" + skip + "&adult=false&first=0&order=hot";
+                    String PATH = HttpUtils.host + "/vertical/category/" + id + "/vertical?limit=30&skip=" + skip + "&adult=false&first=1&order=hot";
                     URL url = new URL(PATH);
                     HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                     //配置参数
@@ -143,28 +162,16 @@ public class Choiceness extends Fragment {
                         InputStream inputStream = connection.getInputStream();
                         //将字节流输入流转换为字符串
                         data = StreamUtils.inputSteam2String(inputStream);
-                        try {
-                            //解析服务器端返回的数据
-                            JSONObject obj = new JSONObject(data);
-                            JSONObject obj2 = new JSONObject(obj.getString("res"));
-                            JSONArray arr = new JSONArray(obj2.getString("vertical"));
-                            for (int i = 0; i < arr.length(); i++) {
-                                JSONObject temp = (JSONObject) arr.get(i);
-                                ChoicenessData map = new ChoicenessData();
-                                map.setId(temp.getString("id"));
-                                map.setThumb(temp.getString("thumb"));
-                                map.setImg(temp.getString("img"));
-                                map.setPreview(temp.getString("preview"));
-                                dataList.add(map);
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
+                        handler.obtainMessage(RESULT_OK, data).sendToTarget();
+                    } else {
+                        handler.obtainMessage(RESULT_CANCELED, responseCode).sendToTarget();
                     }
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
+                    handler.obtainMessage(RESULT_CANCELED, e.getMessage()).sendToTarget();
                 } catch (IOException e) {
                     e.printStackTrace();
+                    handler.obtainMessage(RESULT_CANCELED, e.getMessage()).sendToTarget();
                 }
             }
         }).start();

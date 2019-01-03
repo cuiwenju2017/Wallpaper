@@ -6,24 +6,26 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import com.example.wallpaper.fragment.FragmentChoiceness;
 import com.example.wallpaper.fragment.FragmentClassify;
+import com.example.wallpaper.fragment.FragmentHottest;
+import com.example.wallpaper.fragment.FragmentNewest;
 
 /**
  * 手机壁纸导航栏适配器
  */
-public class MobilePhoneFragmentPagerAdapter extends FragmentPagerAdapter {
+public class ClassifyFragmentPagerAdapter extends FragmentPagerAdapter {
 
-    private String[] mTitles = new String[]{"精选", "分类"};
+    private String[] mTitles = new String[]{"最新", "热门"};
 
-    public MobilePhoneFragmentPagerAdapter(FragmentManager fm) {
+    public ClassifyFragmentPagerAdapter(FragmentManager fm) {
         super(fm);
     }
 
     @Override
     public Fragment getItem(int position) {
         if (position == 0) {
-            return new FragmentChoiceness();
+            return new FragmentNewest();
         }
-        return new FragmentClassify();
+        return new FragmentHottest();
     }
 
     @Override
