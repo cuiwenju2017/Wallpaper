@@ -122,7 +122,13 @@ public class ComputerPreviewActivity extends BaseActivity implements View.OnClic
                 finish();
                 break;
             case R.id.btn_set://设为壁纸
-                HttpURLConnectionUtil.setWallpaper(ComputerPreviewActivity.this, img);
+                //检测是否有写的权限
+                if (permission != PackageManager.PERMISSION_GRANTED) {
+                    // 没有写的权限，去申请写的权限，会弹出对话框
+                    ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE);
+                } else {
+                    HttpURLConnectionUtil.setWallpaper(ComputerPreviewActivity.this, img);
+                }
                 break;
             case R.id.iv_down://下载
                 //检测是否有写的权限

@@ -1,6 +1,7 @@
 package com.example.wallpaper.utils;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.app.WallpaperManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,6 +17,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class HttpURLConnectionUtil {
+
+    private static ProgressDialog mSaveDialog = null;
+
     /**
      * 设置系统壁纸
      * 1、把网络图片设置系统壁纸
@@ -49,7 +53,6 @@ public class HttpURLConnectionUtil {
                         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
                             File parent = Environment.getExternalStorageDirectory();//获取ID卡目录
                             download = new File(parent, filename);//在父类的目录下创建一个以当前下载的系统时间为文件名的文件
-
                             out = new FileOutputStream(download);
                         }
 
@@ -74,6 +77,7 @@ public class HttpURLConnectionUtil {
                                     Toast.makeText(activity, "壁纸设置成功，请在桌面上查看", Toast.LENGTH_SHORT).show();
                                 } catch (IOException e) {
                                     Toast.makeText(activity, "壁纸设置失败", Toast.LENGTH_SHORT).show();
+                                    mSaveDialog.dismiss();
                                     e.printStackTrace();
                                 }
                             }
