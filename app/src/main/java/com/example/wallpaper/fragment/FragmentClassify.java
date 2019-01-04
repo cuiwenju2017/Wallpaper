@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.GridLayoutManager;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +27,7 @@ import com.example.wallpaper.bean.ClassifyData;
 import com.example.wallpaper.utils.HttpUtils;
 import com.example.wallpaper.utils.StreamUtils;
 import com.example.wallpaper.view.SwipeRefreshView;
+import com.example.wallpaper.wrapper.LoadMoreWrapper;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;

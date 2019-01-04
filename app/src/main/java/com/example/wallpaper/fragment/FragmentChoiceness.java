@@ -100,13 +100,16 @@ public class FragmentChoiceness extends Fragment {
         recyclerview = view.findViewById(R.id.recycler_view);
         swipeRefreshLayout = view.findViewById(R.id.swiperefreshlayout);
         initData();
-
         // 设置刷新控件颜色
         swipeRefreshLayout.setColorSchemeColors(Color.parseColor("#d81e06"));
         // 设置下拉刷新
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                loadMoreWrapperAdapter = new LoadMoreWrapperAdapter(dataList);
+                loadMoreWrapper = new LoadMoreWrapper(loadMoreWrapperAdapter);
+                recyclerview.setLayoutManager(new GridLayoutManager(getActivity(), 3));
+                recyclerview.setAdapter(loadMoreWrapper);
                 // 刷新数据
                 dataList.clear();
                 skip = skip + 30;

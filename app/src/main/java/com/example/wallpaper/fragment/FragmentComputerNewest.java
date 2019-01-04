@@ -109,7 +109,10 @@ public class FragmentComputerNewest extends Fragment {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                // 刷新数据
+                loadMoreWrapperAdapter = new LoadMoreWrapperAdapter(dataList);
+                loadMoreWrapper = new LoadMoreWrapper(loadMoreWrapperAdapter);
+                recyclerview.setLayoutManager(new GridLayoutManager(getActivity(), 2));
+                recyclerview.setAdapter(loadMoreWrapper);
                 dataList.clear();
                 skip = skip + 30;
                 initData();
