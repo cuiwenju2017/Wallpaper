@@ -74,7 +74,6 @@ public class FragmentChoiceness extends Fragment {
                             map.setId(temp.getString("id"));
                             map.setThumb(temp.getString("thumb"));
                             map.setImg(temp.getString("img"));
-                            map.setPreview(temp.getString("preview"));
                             dataList.add(map);
                         }
                         loadMoreWrapperAdapter = new LoadMoreWrapperAdapter(dataList);
@@ -211,7 +210,6 @@ public class FragmentChoiceness extends Fragment {
                     Bundle bundle = new Bundle();
                     bundle.putString("id", dataList.get(position).getId());
                     bundle.putString("img", dataList.get(position).getImg());
-                    bundle.putString("preview", dataList.get(position).getPreview());
                     Intent intent = new Intent();
                     intent.putExtras(bundle);
                     intent.setClass(getContext(), PreviewActivity.class);

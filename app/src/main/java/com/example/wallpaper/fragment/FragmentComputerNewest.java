@@ -22,7 +22,6 @@ import android.widget.Toast;
 
 import com.example.wallpaper.R;
 import com.example.wallpaper.activity.ComputerPreviewActivity;
-import com.example.wallpaper.activity.PreviewActivity;
 import com.example.wallpaper.bean.ChoicenessData;
 import com.example.wallpaper.listener.EndlessRecyclerOnScrollListener;
 import com.example.wallpaper.utils.HttpUtils;
@@ -56,7 +55,6 @@ public class FragmentComputerNewest extends Fragment {
     private LoadMoreWrapper loadMoreWrapper;
     private LoadMoreWrapperAdapter loadMoreWrapperAdapter;
     SharedPreferences sprfMain;
-    SharedPreferences.Editor editorMain;
 
     int skip = 0;
     private String data;
@@ -78,7 +76,6 @@ public class FragmentComputerNewest extends Fragment {
                             map.setId(temp.getString("id"));
                             map.setThumb(temp.getString("thumb"));
                             map.setImg(temp.getString("img"));
-                            map.setPreview(temp.getString("preview"));
                             dataList.add(map);
                         }
                         loadMoreWrapperAdapter = new LoadMoreWrapperAdapter(dataList);
@@ -101,7 +98,7 @@ public class FragmentComputerNewest extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_choiceness, container, false);
+        View view = inflater.inflate(R.layout.fragment_newest, container, false);
         recyclerview = view.findViewById(R.id.recycler_view);
         swipeRefreshLayout = view.findViewById(R.id.swiperefreshlayout);
         initData();
@@ -139,7 +136,7 @@ public class FragmentComputerNewest extends Fragment {
     }
 
     private void initData() {
-        //取出上个页面保存的值
+        //保存id
         sprfMain = getActivity().getSharedPreferences("counter", Context.MODE_PRIVATE);
         final String id = sprfMain.getString("id", "");
         new Thread(new Runnable() {
@@ -189,7 +186,7 @@ public class FragmentComputerNewest extends Fragment {
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_rv, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_computer_rv, parent, false);
             final LoadMoreWrapperAdapter.RecyclerViewHolder viewHolder = new LoadMoreWrapperAdapter.RecyclerViewHolder(view);
             viewHolder.view.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -198,7 +195,6 @@ public class FragmentComputerNewest extends Fragment {
                     Bundle bundle = new Bundle();
                     bundle.putString("id", dataList.get(position).getId());
                     bundle.putString("img", dataList.get(position).getImg());
-                    bundle.putString("preview", dataList.get(position).getPreview());
                     Intent intent = new Intent();
                     intent.putExtras(bundle);
                     intent.setClass(getContext(), ComputerPreviewActivity.class);

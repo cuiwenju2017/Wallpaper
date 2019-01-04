@@ -1,7 +1,5 @@
 package com.example.wallpaper.activity;
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.design.widget.TabLayout;
@@ -10,7 +8,6 @@ import android.os.Bundle;
 
 import com.example.wallpaper.R;
 import com.example.wallpaper.adapter.ClassifyFragmentPagerAdapter;
-import com.example.wallpaper.fragment.FragmentNewest;
 
 /**
  * 分类详情
@@ -50,12 +47,11 @@ public class ClassifyActivity extends BaseActivity {
     }
 
 
-
     @Override
     protected void initData() {
         Bundle bundle = getIntent().getExtras();
         final String id = bundle.getString("id");
-
+        //保存id
         sprfMain = getSharedPreferences("counter", Context.MODE_PRIVATE);
         editorMain = sprfMain.edit();
         editorMain.putString("id", id);

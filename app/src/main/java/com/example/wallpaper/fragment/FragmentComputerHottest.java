@@ -21,8 +21,8 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.wallpaper.R;
-import com.example.wallpaper.activity.PreviewActivity;
-import com.example.wallpaper.bean.ChoicenessData;
+import com.example.wallpaper.activity.ComputerPreviewActivity;
+import com.example.wallpaper.bean.HottestData;
 import com.example.wallpaper.listener.EndlessRecyclerOnScrollListener;
 import com.example.wallpaper.utils.HttpUtils;
 import com.example.wallpaper.utils.StreamUtils;
@@ -49,7 +49,7 @@ import static android.app.Activity.RESULT_OK;
  */
 public class FragmentComputerHottest extends Fragment {
 
-    private List<ChoicenessData> dataList = new ArrayList<>();
+    private List<HottestData> dataList = new ArrayList<>();
     public RecyclerView recyclerview;
     private SwipeRefreshLayout swipeRefreshLayout;
     private LoadMoreWrapper loadMoreWrapper;
@@ -72,11 +72,10 @@ public class FragmentComputerHottest extends Fragment {
                         JSONArray arr = new JSONArray(obj2.getString("wallpaper"));
                         for (int i = 0; i < arr.length(); i++) {
                             JSONObject temp = (JSONObject) arr.get(i);
-                            ChoicenessData map = new ChoicenessData();
+                            HottestData map = new HottestData();
                             map.setId(temp.getString("id"));
                             map.setThumb(temp.getString("thumb"));
                             map.setImg(temp.getString("img"));
-                            map.setPreview(temp.getString("preview"));
                             dataList.add(map);
                         }
                         loadMoreWrapperAdapter = new LoadMoreWrapperAdapter(dataList);
@@ -99,11 +98,10 @@ public class FragmentComputerHottest extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_choiceness, container, false);
+        View view = inflater.inflate(R.layout.fragment_hottest, container, false);
         recyclerview = view.findViewById(R.id.recycler_view);
         swipeRefreshLayout = view.findViewById(R.id.swiperefreshlayout);
         initData();
-
         // 设置刷新控件颜色
         swipeRefreshLayout.setColorSchemeColors(Color.parseColor("#d81e06"));
         // 设置下拉刷新
@@ -179,15 +177,15 @@ public class FragmentComputerHottest extends Fragment {
 
     public class LoadMoreWrapperAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-        private List<ChoicenessData> dataList;
+        private List<HottestData> dataList;
 
-        public LoadMoreWrapperAdapter(List<ChoicenessData> dataList) {
+        public LoadMoreWrapperAdapter(List<HottestData> dataList) {
             this.dataList = dataList;
         }
 
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_rv, parent, false);
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_computer_rv, parent, false);
             final LoadMoreWrapperAdapter.RecyclerViewHolder viewHolder = new LoadMoreWrapperAdapter.RecyclerViewHolder(view);
             viewHolder.view.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -196,10 +194,9 @@ public class FragmentComputerHottest extends Fragment {
                     Bundle bundle = new Bundle();
                     bundle.putString("id", dataList.get(position).getId());
                     bundle.putString("img", dataList.get(position).getImg());
-                    bundle.putString("preview", dataList.get(position).getPreview());
                     Intent intent = new Intent();
                     intent.putExtras(bundle);
-                    intent.setClass(getContext(), PreviewActivity.class);
+                    intent.setClass(getContext(), ComputerPreviewActivity.class);
                     startActivity(intent);
                 }
             });

@@ -12,6 +12,9 @@ import android.view.ViewGroup;
 import com.example.wallpaper.R;
 import com.example.wallpaper.adapter.MobilePhoneFragmentPagerAdapter;
 
+/**
+ * 手机壁纸
+ */
 public class FragmentOne extends Fragment {
 
     private ViewPager mViewPager;

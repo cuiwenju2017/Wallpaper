@@ -1,51 +1,33 @@
 package com.example.wallpaper.activity;
 
-import android.Manifest;
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.app.WallpaperManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 import com.example.wallpaper.R;
-import com.example.wallpaper.utils.HttpURLConnectionUtil;
 import com.example.wallpaper.utils.ImgDonwload;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
-import static android.support.v4.content.FileProvider.getUriForFile;
-
 /**
- * 预览
+ * 预览手机壁纸
  */
 public class PreviewActivity extends BaseActivity implements View.OnClickListener {
 
-    private ImageView iv, iv_back, iv_down;
+    private ImageView iv, iv_back;
     private Button btn_set;
     private static ProgressDialog mSaveDialog = null;
 
@@ -69,12 +51,10 @@ public class PreviewActivity extends BaseActivity implements View.OnClickListene
         iv = findViewById(R.id.iv);
         iv_back = findViewById(R.id.iv_back);
         btn_set = findViewById(R.id.btn_set);
-        iv_down = findViewById(R.id.iv_down);
         //获取监听
         iv.setOnClickListener(this);
         iv_back.setOnClickListener(this);
         btn_set.setOnClickListener(this);
-        iv_down.setOnClickListener(this);
     }
 
     @Override
@@ -132,68 +112,22 @@ public class PreviewActivity extends BaseActivity implements View.OnClickListene
         Bundle bundle = getIntent().getExtras();
         final String id = bundle.getString("id");
         final String img = bundle.getString("img");
-        final String preview = bundle.getString("preview");
         final int permission = ActivityCompat.checkSelfPermission(this,
                 "android.permission.WRITE_EXTERNAL_STORAGE");
         switch (v.getId()) {
             case R.id.iv_back://返回
-                //Toast.makeText(act, preview2, Toast.LENGTH_SHORT).show();
                 finish();
                 break;
-            case R.id.btn_set://设为壁纸
-                //创建一个新线程，用于从网络上获取图片
-              /*  new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        //从网络上获取图片
-                        final Bitmap bitmap = getPicture(message);
-                        try {
-                            Thread.sleep(500);//线程休眠半秒钟
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                        //发送一个Runnable对象
-                        iv.post(new Runnable() {
-                            @Override
-                            public void run() {
-                               *//* try {
-                                    WallpaperManager wpm = (WallpaperManager) act.getSystemService(Context.WALLPAPER_SERVICE);
-                                    wpm.setBitmap(bitmap);
-                                    Toast.makeText(act, "壁纸设置成功，返回桌面查看", Toast.LENGTH_SHORT).show();
-                                } catch (IOException e) {
-                                    Toast.makeText(act, "设置壁纸失败", Toast.LENGTH_SHORT).show();
-                                    e.printStackTrace();
-                                }*//*
-
-                                 Intent chooseIntnet = new Intent(Intent.ACTION_SET_WALLPAPER);
-                                Intent chooser = Intent.createChooser(chooseIntnet, getText(R.string.app_name));
-                                startActivity(chooser);
-
-                            }
-                        });
-                    }
-                }).start();//开启线程
-*/
-                //HttpURLConnectionUtil.setWallpaper(PreviewActivity.this,message);
-
+            case R.id.btn_set://下载并设为壁纸
                 //检测是否有写的权限
                 if (permission != PackageManager.PERMISSION_GRANTED) {
                     // 没有写的权限，去申请写的权限，会弹出对话框
                     ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE);
                 } else {
-                    ImgDonwload.donwloadImg(PreviewActivity.this, preview, id);
+                    ImgDonwload.donwloadImg(PreviewActivity.this, img, id);
                     Intent chooseIntnet = new Intent(Intent.ACTION_SET_WALLPAPER);
                     Intent chooser = Intent.createChooser(chooseIntnet, getText(R.string.app_name));
                     startActivity(chooser);
-                }
-                break;
-            case R.id.iv_down://下载
-                //检测是否有写的权限
-                if (permission != PackageManager.PERMISSION_GRANTED) {
-                    // 没有写的权限，去申请写的权限，会弹出对话框
-                    ActivityCompat.requestPermissions(this, PERMISSIONS_STORAGE, REQUEST_EXTERNAL_STORAGE);
-                } else {
-                    ImgDonwload.donwloadImg(PreviewActivity.this, preview, id);
                 }
                 break;
             default:

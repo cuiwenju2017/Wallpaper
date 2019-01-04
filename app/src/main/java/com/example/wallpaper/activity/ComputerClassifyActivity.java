@@ -4,13 +4,14 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 
 import com.example.wallpaper.R;
-import com.example.wallpaper.adapter.ClassifyFragmentPagerAdapter;
 import com.example.wallpaper.adapter.ComputerClassifyFragmentPagerAdapter;
 
+/**
+ * 电脑壁纸预览
+ */
 public class ComputerClassifyActivity extends BaseActivity {
 
     private ViewPager mViewPager;
@@ -45,11 +46,11 @@ public class ComputerClassifyActivity extends BaseActivity {
         two = mTabLayout.getTabAt(1);
     }
 
-
     @Override
     protected void initData() {
         Bundle bundle = getIntent().getExtras();
         final String id = bundle.getString("id");
+        //保存id
         sprfMain = getSharedPreferences("counter", Context.MODE_PRIVATE);
         editorMain = sprfMain.edit();
         editorMain.putString("id", id);

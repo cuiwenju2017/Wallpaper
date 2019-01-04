@@ -17,10 +17,6 @@ public abstract class BaseActivity extends FragmentActivity {
         initView();
         initData();
         initListener();
-        // 透明状态栏
-      /*  if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        }*/
     }
 
     @LayoutRes

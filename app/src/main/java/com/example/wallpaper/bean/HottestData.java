@@ -1,9 +1,9 @@
 package com.example.wallpaper.bean;
 
 /**
- * 精选
+ * 热门
  */
-public class ChoicenessData {
+public class HottestData {
     private String id;//图片id
     private String thumb;//缩略图
     private String img;//预览图
@@ -34,7 +34,7 @@ public class ChoicenessData {
 
     @Override
     public String toString() {
-        return "ChoicenessData{" +
+        return "HottestData{" +
                 "id='" + id + '\'' +
                 ", thumb='" + thumb + '\'' +
                 ", img='" + img + '\'' +

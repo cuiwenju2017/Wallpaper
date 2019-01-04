@@ -6,8 +6,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import com.example.wallpaper.fragment.FragmentComputerHottest;
 import com.example.wallpaper.fragment.FragmentComputerNewest;
-import com.example.wallpaper.fragment.FragmentHottest;
-import com.example.wallpaper.fragment.FragmentNewest;
 
 /**
  * 电脑壁纸导航栏适配器

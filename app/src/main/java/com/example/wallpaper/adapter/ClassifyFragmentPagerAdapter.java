@@ -4,8 +4,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.example.wallpaper.fragment.FragmentChoiceness;
-import com.example.wallpaper.fragment.FragmentClassify;
 import com.example.wallpaper.fragment.FragmentHottest;
 import com.example.wallpaper.fragment.FragmentNewest;
 

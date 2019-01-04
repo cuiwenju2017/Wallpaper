@@ -22,13 +22,11 @@ import android.widget.Toast;
 
 import com.example.wallpaper.R;
 import com.example.wallpaper.activity.ClassifyActivity;
-import com.example.wallpaper.activity.PreviewActivity;
 import com.example.wallpaper.bean.ClassifyData;
 import com.example.wallpaper.utils.HttpUtils;
 import com.example.wallpaper.utils.StreamUtils;
 import com.example.wallpaper.view.SwipeRefreshView;
 import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Transformation;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,8 +39,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.net.ssl.ManagerFactoryParameters;
 
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;

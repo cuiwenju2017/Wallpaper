@@ -21,7 +21,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.wallpaper.R;
-import com.example.wallpaper.activity.ClassifyActivity;
 import com.example.wallpaper.activity.ComputerClassifyActivity;
 import com.example.wallpaper.bean.ClassifyData;
 import com.example.wallpaper.utils.HttpUtils;
@@ -44,10 +43,13 @@ import java.util.List;
 import static android.app.Activity.RESULT_CANCELED;
 import static android.app.Activity.RESULT_OK;
 
+/**
+ * 电脑壁纸
+ */
 public class FragmentTwo extends Fragment implements AdapterView.OnItemClickListener {
 
     private GridView gl;
-    private List<ClassifyData> datas = new ArrayList<ClassifyData>();
+    private List<ClassifyData> datas = new ArrayList();
     private SwipeRefreshView mSwipeRefreshView;
 
     private String data;

@@ -1,7 +1,7 @@
 package com.example.wallpaper.bean;
 
 /**
- * 精选
+ * 分类
  */
 public class ClassifyData {
     private String id;//图片id
