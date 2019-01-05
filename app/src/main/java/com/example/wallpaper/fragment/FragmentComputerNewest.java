@@ -102,7 +102,6 @@ public class FragmentComputerNewest extends Fragment {
         recyclerview = view.findViewById(R.id.recycler_view);
         swipeRefreshLayout = view.findViewById(R.id.swiperefreshlayout);
         initData();
-
         // 设置刷新控件颜色
         swipeRefreshLayout.setColorSchemeColors(Color.parseColor("#d81e06"));
         // 设置下拉刷新
